@@ -132,7 +132,7 @@ router.get('/teacher-salary', (req, res) => {
     `).all();
 
     const data = teachers.map(t => {
-      // Số buổi dạy mỗi lớp trong tháng (đếm theo ngày riêng biệt)
+      // Số buổi dạy mỗi lớp trong tháng (để hiển thị chi tiết)
       const lops = db.prepare(`
         SELECT cg.id AS class_id, cg.ten_lop,
                COUNT(DISTINCT a.ngay) AS so_buoi
@@ -143,7 +143,13 @@ router.get('/teacher-salary', (req, res) => {
         ORDER BY cg.ten_lop ASC
       `).all(t.id, thang);
 
-      const tong_buoi = lops.reduce((s, l) => s + l.so_buoi, 0);
+      // Tổng ngày dạy thực tế (nhiều lớp cùng ngày = 1 ngày)
+      const uniqueDays = db.prepare(`
+        SELECT COUNT(DISTINCT ngay) AS tong_ngay
+        FROM attendance
+        WHERE teacher_id = ? AND strftime('%Y-%m', ngay) = ?
+      `).get(t.id, thang);
+      const tong_buoi = uniqueDays?.tong_ngay || 0;
       const tong_luong = tong_buoi * (t.luong_buoi || 0);
 
       // Đã trả chưa?

@@ -23,7 +23,7 @@ const currentNamHoc = () => {
   return m >= 8 ? `${y}-${y + 1}` : `${y - 1}-${y}`
 }
 
-const HOC_KY_OPTIONS = ['HK1', 'HK2', 'HK3', 'Cả năm']
+const HOC_KY_OPTIONS = ['HK1', 'HK2', 'Hè', 'Cả năm']
 
 const EMPTY_FORM = { ten_lop: '', mo_ta: '', hoc_phi_thang: '', teacher_id: '', lich_hoc: '', hoc_ky: 'HK1', nam_hoc: currentNamHoc(), thang_bat_dau: '', thang_ket_thuc: '' }
 

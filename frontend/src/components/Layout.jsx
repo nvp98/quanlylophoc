@@ -52,7 +52,7 @@ export function Layout({ children, title }) {
             </div>
             <div>
               <p className="text-white font-bold text-sm leading-tight">Quản Lý</p>
-              <p className="text-indigo-300 text-xs">Lớp Học Thêm</p>
+              <p className="text-indigo-300 text-xs">Lớp Học Cô Linh</p>
             </div>
           </div>
           <button
