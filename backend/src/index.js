@@ -16,7 +16,7 @@ app.use(
       "http://localhost:3000",
       "http://127.0.0.1:5173",
       "http://127.0.0.1:5174",
-      "https://quanlylophoc-98ys.onrender.com/",
+      "https://quanlylophoc-98ys.onrender.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -63,12 +63,10 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use((req, res) => {
-  res
-    .status(404)
-    .json({
-      success: false,
-      message: `Route khong ton tai: ${req.method} ${req.path}`,
-    });
+  res.status(404).json({
+    success: false,
+    message: `Route khong ton tai: ${req.method} ${req.path}`,
+  });
 });
 
 app.use((err, req, res, next) => {
