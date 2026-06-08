@@ -57,6 +57,157 @@ function StudentAvatar({ s, size = 8 }) {
   )
 }
 
+const EMPTY_NEW_STUDENT = { ho_ten: '', biet_danh: '', ngay_sinh: '', gioi_tinh: '', dia_chi: '', ten_phu_huynh: '', sdt_phu_huynh: '', ghi_chu: '' }
+
+// ── New Student Modal ────────────────────────────────────────────────────────
+function NewStudentModal({ open, onClose, onSuccess, classId, className }) {
+  const [form, setForm] = useState(EMPTY_NEW_STUDENT)
+  const [saving, setSaving] = useState(false)
+  const setField = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const handleClose = () => { setForm(EMPTY_NEW_STUDENT); onClose() }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.ho_ten.trim()) { toast.error('Vui lòng nhập họ tên học sinh'); return }
+    setSaving(true)
+    try {
+      await studentService.create({ ...form, class_ids: classId })
+      toast.success(`Đã tạo và thêm "${form.ho_ten}" vào lớp`)
+      handleClose()
+      onSuccess()
+    } catch (err) {
+      toast.error(err.message || 'Không thể tạo học sinh')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Dialog.Root open={open} onOpenChange={v => !v && handleClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm" />
+        <Dialog.Content className="fixed z-[70] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div>
+              <Dialog.Title className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <UserPlus size={14} className="text-green-600" />
+                </div>
+                Thêm học sinh mới
+              </Dialog.Title>
+              {className && (
+                <p className="text-xs text-gray-400 mt-0.5 ml-9">Sẽ tự động thêm vào lớp <span className="font-medium text-indigo-600">{className}</span></p>
+              )}
+            </div>
+            <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+              <X size={18} />
+            </button>
+          </div>
+          <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Họ tên <span className="text-red-500">*</span></label>
+              <input
+                value={form.ho_ten}
+                onChange={e => setField('ho_ten', e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                placeholder="Nguyễn Văn A"
+                autoFocus
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Biệt danh</label>
+                <input
+                  value={form.biet_danh}
+                  onChange={e => setField('biet_danh', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="Tên thường gọi"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Ngày sinh</label>
+                <input
+                  type="date"
+                  value={form.ngay_sinh}
+                  onChange={e => setField('ngay_sinh', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Giới tính</label>
+                <select
+                  value={form.gioi_tinh}
+                  onChange={e => setField('gioi_tinh', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                >
+                  <option value="">-- Chọn --</option>
+                  <option value="nam">Nam</option>
+                  <option value="nu">Nữ</option>
+                  <option value="khac">Khác</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Địa chỉ</label>
+                <input
+                  value={form.dia_chi}
+                  onChange={e => setField('dia_chi', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="Địa chỉ..."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tên phụ huynh</label>
+                <input
+                  value={form.ten_phu_huynh}
+                  onChange={e => setField('ten_phu_huynh', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="Nguyễn Văn B"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">SĐT phụ huynh</label>
+                <input
+                  value={form.sdt_phu_huynh}
+                  onChange={e => setField('sdt_phu_huynh', e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="0901234567"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Ghi chú</label>
+              <textarea
+                value={form.ghi_chu}
+                onChange={e => setField('ghi_chu', e.target.value)}
+                rows={2}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                placeholder="Ghi chú thêm về học sinh..."
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-1">
+              <button type="button" onClick={handleClose}
+                className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50">
+                Hủy
+              </button>
+              <button type="submit" disabled={saving}
+                className="flex items-center gap-2 px-5 py-2 text-sm bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-60">
+                {saving ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />}
+                Tạo &amp; thêm vào lớp
+              </button>
+            </div>
+          </form>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  )
+}
+
 // ── Class Detail Modal ───────────────────────────────────────────────────────
 function ClassDetailModal({ classId, onClose, onEdit, onDelete }) {
   const [cls, setCls] = useState(null)
@@ -68,6 +219,9 @@ function ClassDetailModal({ classId, onClose, onEdit, onDelete }) {
   const [addSearch, setAddSearch] = useState('')
   const [enrolling, setEnrolling] = useState(null)
   const [removing, setRemoving] = useState(null)
+
+  // New student modal
+  const [showNewStudentModal, setShowNewStudentModal] = useState(false)
 
   // Attendance tab
   const [attMonth, setAttMonth] = useState(currentMonth())
@@ -347,10 +501,18 @@ function ClassDetailModal({ classId, onClose, onEdit, onDelete }) {
 
                   {/* Add student */}
                   <div className="border-t border-gray-100 pt-5">
-                    <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5 mb-3">
-                      <UserPlus size={14} className="text-green-500" />
-                      Thêm học sinh vào lớp
-                    </h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+                        <UserPlus size={14} className="text-green-500" />
+                        Thêm học sinh vào lớp
+                      </h3>
+                      <button
+                        onClick={() => setShowNewStudentModal(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-green-200 text-green-700 hover:bg-green-50 transition-colors"
+                      >
+                        <Plus size={12} /> Tạo học sinh mới
+                      </button>
+                    </div>
                     <div className="relative mb-3">
                       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
@@ -391,6 +553,15 @@ function ClassDetailModal({ classId, onClose, onEdit, onDelete }) {
                       </div>
                     )}
                   </div>
+
+                  {/* New Student Modal */}
+                  <NewStudentModal
+                    open={showNewStudentModal}
+                    onClose={() => setShowNewStudentModal(false)}
+                    onSuccess={() => Promise.all([loadClass(), loadAllStudents()])}
+                    classId={classId}
+                    className={cls?.ten_lop}
+                  />
                 </>
               )}
             </Tabs.Content>
